@@ -1,0 +1,37 @@
+package org.example.smartshop.model.entity;
+
+import jakarta.persistence.*;
+import org.example.smartshop.enums.UserRole;
+
+import java.util.List;
+
+@Entity
+@Table(name = "users")
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @Column(unique = true, nullable = false)
+    private String username;
+
+    @Column(nullable = false)
+    private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserRole role;
+
+    private String name;
+
+    @Column(unique = true)
+    private String email;
+
+    private String loyaltyLevel;
+
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Commande> commandes;
+
+}
+
