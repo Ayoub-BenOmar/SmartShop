@@ -1,10 +1,15 @@
 package org.example.smartshop.model.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "paiements")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Paiement {
 
     @Id
@@ -16,7 +21,7 @@ public class Paiement {
     private Commande commande;
 
     @Column(nullable = false)
-    private Integer paymentNumber; // 1,2,3...
+    private Integer paymentNumber;
 
     @Column(nullable = false)
     private Double montant;
@@ -27,7 +32,7 @@ public class Paiement {
     @Column(nullable = false)
     private LocalDateTime paymentDate;
 
-    private LocalDateTime dateEncaissement;
+    private LocalDateTime collectionDate;
 
 }
 

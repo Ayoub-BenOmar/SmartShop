@@ -1,11 +1,16 @@
 package org.example.smartshop.model.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @Table(name = "commandes")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Commande {
 
     @Id
@@ -22,13 +27,13 @@ public class Commande {
     @Column(nullable = false)
     private LocalDateTime date;
 
-    private Double sousTotal;
-    private Double remise;
+    private Double subtotal;
+    private Double discount;
     private Double tva;
     private Double total;
-    private String codePromo;
+    private String promotionCode;
     private String statut;
-    private Double montantRestant;
+    private Double remainingAmount;
 
     @OneToMany(mappedBy = "commande", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Paiement> payements;

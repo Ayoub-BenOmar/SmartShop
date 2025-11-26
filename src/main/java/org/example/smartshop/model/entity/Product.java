@@ -1,9 +1,13 @@
 package org.example.smartshop.model.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Table(name = "products")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Product {
 
     @Id
@@ -17,6 +21,6 @@ public class Product {
     private Double unitPrice;
 
     @Column(nullable = false)
-    private Integer avilableQuantity;
+    private Integer availableQuantity;
 }
 
