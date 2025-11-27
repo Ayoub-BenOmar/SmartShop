@@ -1,6 +1,7 @@
 package org.example.smartshop.model.dto;
 
 import lombok.*;
+import org.example.smartshop.enums.CustomerTier;
 import org.example.smartshop.enums.UserRole;
 
 import java.util.List;
@@ -15,6 +16,6 @@ public class UserDto {
     private UserRole role;
     private String name;
     private String email;
-    private String loyaltyLevel;
+    private CustomerTier loyaltyLevel;
     private List<Integer> commandeIds;
 }

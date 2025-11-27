@@ -29,7 +29,7 @@ public class AuthController {
 
             HttpSession session = request.getSession(true);
             session.setAttribute("USER_ID", user.getId());
-            session.setAttribute("USER_ROLE", user.getRole().name());
+            session.setAttribute("USER_ROLE", user.getRole());
 
             UserDto dto = userMapper.toDto(user);
             return ResponseEntity.ok(dto);

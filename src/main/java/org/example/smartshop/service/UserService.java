@@ -1,5 +1,7 @@
 package org.example.smartshop.service;
 
+import lombok.RequiredArgsConstructor;
+import org.example.smartshop.enums.CustomerTier;
 import org.example.smartshop.enums.UserRole;
 import org.example.smartshop.model.dto.UserDto;
 import org.example.smartshop.model.entity.User;
@@ -13,19 +15,16 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-
-    public UserService(UserRepository userRepository, UserMapper userMapper) {
-        this.userRepository = userRepository;
-        this.userMapper = userMapper;
-    }
 
     public UserDto create(UserDto dto) {
         User user = userMapper.toEntity(dto);
         user.setPassword(PasswordUtil.hash(user.getPassword()));
         user.setRole(UserRole.CLIENT);
+        user.setLoyaltyLevel(CustomerTier.BASIC);
         user = userRepository.save(user);
         return userMapper.toDto(user);
     }

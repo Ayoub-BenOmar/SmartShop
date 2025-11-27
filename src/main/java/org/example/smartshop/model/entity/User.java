@@ -2,6 +2,7 @@ package org.example.smartshop.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.smartshop.enums.CustomerTier;
 import org.example.smartshop.enums.UserRole;
 
 import java.util.List;
@@ -32,7 +33,8 @@ public class User {
     @Column(unique = true)
     private String email;
 
-    private String loyaltyLevel;
+    @Enumerated(EnumType.STRING)
+    private CustomerTier loyaltyLevel;
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Commande> commandes;
