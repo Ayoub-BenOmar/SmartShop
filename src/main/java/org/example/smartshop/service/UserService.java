@@ -1,9 +1,11 @@
 package org.example.smartshop.service;
 
+import org.example.smartshop.enums.UserRole;
 import org.example.smartshop.model.dto.UserDto;
 import org.example.smartshop.model.entity.User;
 import org.example.smartshop.model.mapper.UserMapper;
 import org.example.smartshop.repository.UserRepository;
+import org.example.smartshop.util.PasswordUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,6 +24,8 @@ public class UserService {
 
     public UserDto create(UserDto dto) {
         User user = userMapper.toEntity(dto);
+        user.setPassword(PasswordUtil.hash(user.getPassword()));
+        user.setRole(UserRole.CLIENT);
         user = userRepository.save(user);
         return userMapper.toDto(user);
     }

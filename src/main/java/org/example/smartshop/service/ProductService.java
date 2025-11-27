@@ -1,21 +1,20 @@
 package org.example.smartshop.service;
 
+import lombok.RequiredArgsConstructor;
 import org.example.smartshop.model.dto.ProductDto;
 import org.example.smartshop.model.entity.Product;
 import org.example.smartshop.model.mapper.ProductMapper;
 import org.example.smartshop.repository.ProductRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Service
+@RequiredArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
-
-    public ProductService(ProductRepository productRepository, ProductMapper productMapper) {
-        this.productRepository = productRepository;
-        this.productMapper = productMapper;
-    }
 
     public ProductDto create(ProductDto dto) {
         Product product = productMapper.toEntity(dto);
@@ -36,10 +35,9 @@ public class ProductService {
     }
 
     public void delete(Integer id) {
-        if (!productRepository.existsById(id)) {
-            throw new RuntimeException("Product not found");
-        }
-        productRepository.deleteById(id);
+        Product product = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
+        product.setVisible(false);
+        productRepository.save(product);
     }
 
     public ProductDto getById(Integer id) {
