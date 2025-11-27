@@ -1,4 +1,7 @@
 package org.example.smartshop.repository;
 
-public interface OrderItemRepository {
+import org.example.smartshop.model.entity.OrderItem;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
 }

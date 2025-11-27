@@ -2,6 +2,7 @@ package org.example.smartshop.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.smartshop.enums.OrderStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,10 +33,14 @@ public class Commande {
     private Double tva;
     private Double total;
     private String promotionCode;
-    private String statut;
+
+    @Enumerated(EnumType.STRING)
+    private OrderStatus statut;
+
     private Double remainingAmount;
 
     @OneToMany(mappedBy = "commande", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Enumerated(EnumType.STRING)
     private List<Paiement> payements;
 
 }
