@@ -11,7 +11,6 @@ import org.example.smartshop.model.mapper.CommandeMapper;
 import org.example.smartshop.repository.*;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +41,7 @@ public class CommandeService {
         commande.setDate(LocalDateTime.now());
         commande.setPromotionCode(dto.getPromotionCode());
         commande.setStatut(OrderStatus.PENDING);
+        commande.setPaiementStatus(PaymentStatus.PENDING);
 
         Commande savedCommande = commandeRepository.save(commande);
 
