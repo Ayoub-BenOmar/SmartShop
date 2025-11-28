@@ -1,20 +1,19 @@
 package org.example.smartshop.service;
 
 import lombok.*;
+import org.example.smartshop.enums.CustomerTier;
 import org.example.smartshop.enums.OrderStatus;
+import org.example.smartshop.enums.PaymentStatus;
 import org.example.smartshop.model.dto.CommandeDto;
-import org.example.smartshop.model.entity.Commande;
-import org.example.smartshop.model.entity.OrderItem;
-import org.example.smartshop.model.entity.Paiement;
-import org.example.smartshop.model.entity.User;
+import org.example.smartshop.model.dto.CommandeItemDto;
+import org.example.smartshop.model.entity.*;
 import org.example.smartshop.model.mapper.CommandeMapper;
-import org.example.smartshop.repository.CommandeRepository;
-import org.example.smartshop.repository.OrderItemRepository;
-import org.example.smartshop.repository.PaiementRepository;
-import org.example.smartshop.repository.UserRepository;
+import org.example.smartshop.repository.*;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -25,32 +24,87 @@ public class CommandeService {
     private final CommandeMapper commandeMapper;
     private final UserRepository userRepository;
     private final OrderItemRepository orderItemRepository;
-    private final PaiementRepository paiementRepository;
+    private final ProductRepository productRepository;
+    private final UserService userService;
+    private final OrderItemService orderItemService;
 
     public CommandeDto create(CommandeDto dto) {
+
+        User client = userRepository.findById(dto.getClientId())
+                .orElseThrow(() -> new RuntimeException("Client not found"));
+
+        if (dto.getItems() == null || dto.getItems().isEmpty()) {
+            throw new RuntimeException("Commande must have at least one item");
+        }
+
         Commande commande = new Commande();
-
-        User client = userRepository.findById(dto.getClientId()).orElseThrow(() -> new RuntimeException("Client not found"));
         commande.setClient(client);
-
-        List<OrderItem> items = orderItemRepository.findAllById(dto.getItemIds());
-        commande.setItems(items);
-
-        List<Paiement> payments = paiementRepository.findAllById(dto.getPaiementIds());
-        commande.setPayements(payments);
-
-        commande.setDate(dto.getDate());
-        commande.setSubtotal(dto.getSubtotal());
-        commande.setDiscount(dto.getDiscount());
-        commande.setTva(dto.getTva());
-        commande.setTotal(dto.getTotal());
+        commande.setDate(LocalDateTime.now());
         commande.setPromotionCode(dto.getPromotionCode());
-        commande.setStatut(dto.getStatut());
-        commande.setRemainingAmount(dto.getRemainingAmount());
+        commande.setStatut(OrderStatus.PENDING);
 
-        commande = commandeRepository.save(commande);
+        Commande savedCommande = commandeRepository.save(commande);
 
-        return commandeMapper.toDto(commande);
+        double subtotal = 0.0;
+        List<OrderItem> orderItems = new ArrayList<>();
+
+        for (CommandeItemDto itemDto : dto.getItems()) {
+            Product product = productRepository.findById(itemDto.getProductId())
+                    .orElseThrow(() -> new RuntimeException("Product not found: " + itemDto.getProductId()));
+
+            if (itemDto.getQuantity() > product.getAvailableQuantity()) {
+                throw new RuntimeException("Insufficient stock for product: " + product.getName());
+            }
+
+            OrderItem orderItem = orderItemService.create(savedCommande, product, itemDto.getQuantity());
+            orderItems.add(orderItem);
+
+            product.setAvailableQuantity(product.getAvailableQuantity() - itemDto.getQuantity());
+            productRepository.save(product);
+
+            subtotal += orderItem.getLineTotal();
+        }
+
+        double discount = 0.0;
+        if (client.getLoyaltyLevel() == CustomerTier.SILVER && subtotal >= 500) {
+            discount = subtotal * 0.05;
+        } else if (client.getLoyaltyLevel() == CustomerTier.GOLD && subtotal >= 800) {
+            discount = subtotal * 0.10;
+        } else if (client.getLoyaltyLevel() == CustomerTier.PLATINUM && subtotal >= 1200) {
+            discount = subtotal * 0.15;
+        }
+
+        if (dto.getPromotionCode() != null && dto.getPromotionCode().matches("PROMO-[A-Z0-9]{4}")) {
+            discount += subtotal * 0.05;
+        }
+
+        double totalHT = subtotal - discount;
+        double tva = totalHT * 0.20;
+        double totalTTC = totalHT + tva;
+
+        savedCommande.setItems(orderItems);
+        savedCommande.setSubtotal(subtotal);
+        savedCommande.setDiscount(discount);
+        savedCommande.setTva(tva);
+        savedCommande.setTotal(totalTTC);
+        savedCommande.setRemainingAmount(totalTTC);
+
+        savedCommande = commandeRepository.save(savedCommande);
+        updateClientLoyalty(client, totalTTC);
+
+        return commandeMapper.toDto(savedCommande);
+    }
+
+    private void updateClientLoyalty(User client, double lastCommandeAmount) {
+        int orders = userService.calculateTotalOrders(client) + 1;
+        double spent = userService.calculateTotalSpent(client) + lastCommandeAmount;
+
+        if (orders >= 20 || spent >= 15000) client.setLoyaltyLevel(CustomerTier.PLATINUM);
+        else if (orders >= 10 || spent >= 5000) client.setLoyaltyLevel(CustomerTier.GOLD);
+        else if (orders >= 3 || spent >= 1000) client.setLoyaltyLevel(CustomerTier.SILVER);
+        else client.setLoyaltyLevel(CustomerTier.BASIC);
+
+        userRepository.save(client);
     }
 
     public CommandeDto getById(Integer id) {
@@ -65,32 +119,6 @@ public class CommandeService {
                 .toList();
     }
 
-    public CommandeDto update(Integer id, CommandeDto dto) {
-
-        Commande existing = commandeRepository.findById(id).orElseThrow(() -> new RuntimeException("Commande not found"));
-
-        User client = userRepository.findById(dto.getClientId()).orElseThrow(() -> new RuntimeException("Client not found"));
-        existing.setClient(client);
-
-        List<OrderItem> items = orderItemRepository.findAllById(dto.getItemIds());
-        existing.setItems(items);
-
-        List<Paiement> payments = paiementRepository.findAllById(dto.getPaiementIds());
-        existing.setPayements(payments);
-
-        existing.setSubtotal(dto.getSubtotal());
-        existing.setDiscount(dto.getDiscount());
-        existing.setTva(dto.getTva());
-        existing.setTotal(dto.getTotal());
-        existing.setPromotionCode(dto.getPromotionCode());
-        existing.setStatut(dto.getStatut());
-        existing.setRemainingAmount(dto.getRemainingAmount());
-
-        Commande updated = commandeRepository.save(existing);
-
-        return commandeMapper.toDto(updated);
-    }
-
     public void delete(Integer id) {
         if (!commandeRepository.existsById(id)) {
             throw new RuntimeException("Commande not found");
@@ -101,6 +129,9 @@ public class CommandeService {
     public CommandeDto updateStatus(Integer id, OrderStatus status) {
         Commande existing = commandeRepository.findById(id).orElseThrow(() -> new RuntimeException("Commande not found"));
         existing.setStatut(status);
+        if (status.equals(OrderStatus.CONFIRMED)) {
+            updateClientLoyalty(existing.getClient(), existing.getTotal());
+        }
         Commande updated = commandeRepository.save(existing);
         return commandeMapper.toDto(updated);
     }

@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.example.smartshop.enums.OrderStatus;
 import org.example.smartshop.enums.UserRole;
+import org.example.smartshop.exceptions.ForbiddenException;
 import org.example.smartshop.model.dto.CommandeDto;
 import org.example.smartshop.model.dto.ProductDto;
 import org.example.smartshop.model.dto.UserDto;
@@ -29,7 +30,7 @@ public class AdminController {
     private void checkAdmin(HttpSession session) {
         Object roleObj = session.getAttribute("USER_ROLE");
         if (roleObj == null || roleObj != UserRole.ADMIN) {
-            throw new RuntimeException("Forbidden: Admin only");
+            throw new ForbiddenException("Forbidden: Admin access required");
         }
     }
 
@@ -83,11 +84,20 @@ public class AdminController {
     }
 
 
-    // ----- Order / Status management -----
+    // ----- Update Order Status -----
     @PutMapping("/commandes/{id}/status")
     public ResponseEntity<CommandeDto> updateCommandeStatus(@PathVariable Integer id, @PathVariable OrderStatus status, HttpSession session){
         checkAdmin(session);
         checkAdmin(session);
         return ResponseEntity.ok(commandeService.updateStatus(id, status));
+    }
+
+
+    // ----- Commande Management -----
+    @PostMapping("/create-commande")
+    public ResponseEntity<?> createCommande(@RequestBody CommandeDto dto, HttpSession session){
+        checkAdmin(session);
+        CommandeDto created = commandeService.create(dto);
+        return ResponseEntity.ok(created);
     }
 }

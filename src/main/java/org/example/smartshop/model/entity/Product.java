@@ -24,6 +24,6 @@ public class Product {
     private Integer availableQuantity;
 
     @Column(nullable = false)
-    private boolean isVisible = true;
+    private Boolean isVisible = true;
 }
 

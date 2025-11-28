@@ -18,6 +18,9 @@ public class ProductService {
 
     public ProductDto create(ProductDto dto) {
         Product product = productMapper.toEntity(dto);
+        if (product.getIsVisible() == null) {
+            product.setIsVisible(true);
+        }
         product = productRepository.save(product);
         return productMapper.toDto(product);
     }
@@ -36,7 +39,7 @@ public class ProductService {
 
     public void delete(Integer id) {
         Product product = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
-        product.setVisible(false);
+        product.setIsVisible(false);
         productRepository.save(product);
     }
 

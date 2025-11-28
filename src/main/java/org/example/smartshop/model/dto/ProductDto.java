@@ -11,5 +11,5 @@ public class ProductDto {
     private String name;
     private Double unitPrice;
     private Integer availableQuantity;
-    private boolean isVisible = true;
+    private Boolean isVisible = true;
 }

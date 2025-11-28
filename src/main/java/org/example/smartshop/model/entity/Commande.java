@@ -3,6 +3,7 @@ package org.example.smartshop.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.smartshop.enums.OrderStatus;
+import org.example.smartshop.enums.PaymentStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -39,8 +40,7 @@ public class Commande {
 
     private Double remainingAmount;
 
-    @OneToMany(mappedBy = "commande", cascade = CascadeType.ALL, orphanRemoval = true)
     @Enumerated(EnumType.STRING)
-    private List<Paiement> payements;
+    private PaymentStatus paiementStatus;
 
 }

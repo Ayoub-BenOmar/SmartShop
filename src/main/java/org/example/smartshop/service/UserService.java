@@ -67,4 +67,18 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
+    public double calculateTotalSpent(User client) {
+        User user = userRepository.findById(client.getId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return user.getCommandes()
+                .stream()
+                .mapToDouble(commande -> commande.getTotal() != null ? commande.getTotal() : 0.0)
+                .sum();
+    }
+
+    public int calculateTotalOrders(User client) {
+        User user = userRepository.findById(client.getId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return user.getCommandes().size();
+    }
 }

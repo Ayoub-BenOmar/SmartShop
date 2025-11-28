@@ -29,5 +29,4 @@ public class OrderItem {
     private Double unitPrice;
 
     private Double lineTotal;
-
 }
