@@ -32,7 +32,7 @@ public class PaiementService {
 
         Paiement saved = paiementRepository.save(paiement);
 
-        double remaining = (commande.getRemainingAmount() != null ? commande.getRemainingAmount() : 0) - saved.getMontant();
+        double remaining = commande.getRemainingAmount() - saved.getMontant();
         commande.setRemainingAmount(Math.max(0, remaining));
         commandeRepository.save(commande);
 

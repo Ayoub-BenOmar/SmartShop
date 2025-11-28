@@ -5,7 +5,7 @@ import org.example.smartshop.util.PasswordUtil;
 public class PasswordGenerator {
 
     public static void main(String[] args) {
-        String rawPassword = "1230";
+        String rawPassword = "123456";
         String hashed = PasswordUtil.hash(rawPassword);
         System.out.println("Hashed password: " + hashed);
     }
