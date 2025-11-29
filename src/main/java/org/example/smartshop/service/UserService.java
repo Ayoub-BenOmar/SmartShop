@@ -51,10 +51,8 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         existing.setUsername(dto.getUsername());
-        existing.setRole(dto.getRole());
         existing.setName(dto.getName());
         existing.setEmail(dto.getEmail());
-        existing.setLoyaltyLevel(dto.getLoyaltyLevel());
 
         User updated = userRepository.save(existing);
         return userMapper.toDto(updated);

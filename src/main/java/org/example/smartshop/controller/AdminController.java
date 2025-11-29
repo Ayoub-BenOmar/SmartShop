@@ -60,6 +60,12 @@ public class AdminController {
         userService.delete(id);
     }
 
+    @PutMapping("/users/{id}")
+    public void updateUser(@PathVariable Integer id, @RequestBody UserDto dto, HttpSession session){
+        checkAdmin(session);
+        userService.update(id, dto);
+    }
+
 
     // ----- Product management -----
     @PostMapping("/create-product")
