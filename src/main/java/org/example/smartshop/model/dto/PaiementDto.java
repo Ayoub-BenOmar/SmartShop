@@ -1,6 +1,7 @@
 package org.example.smartshop.model.dto;
 
 import lombok.*;
+import org.example.smartshop.enums.PaymentMethode;
 
 import java.time.LocalDateTime;
 
@@ -13,7 +14,7 @@ public class PaiementDto {
     private Integer commandeId;
     private Integer paymentNumber;
     private Double montant;
-    private String payementMethod;
+    private PaymentMethode payementMethod;
     private LocalDateTime paymentDate;
     private LocalDateTime collectionDate;
 }

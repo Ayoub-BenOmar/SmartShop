@@ -7,10 +7,12 @@ import org.example.smartshop.enums.OrderStatus;
 import org.example.smartshop.enums.UserRole;
 import org.example.smartshop.exceptions.ForbiddenException;
 import org.example.smartshop.model.dto.CommandeDto;
+import org.example.smartshop.model.dto.PaiementDto;
 import org.example.smartshop.model.dto.ProductDto;
 import org.example.smartshop.model.dto.UserDto;
 import org.example.smartshop.model.entity.Product;
 import org.example.smartshop.service.CommandeService;
+import org.example.smartshop.service.PaiementService;
 import org.example.smartshop.service.ProductService;
 import org.example.smartshop.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +28,7 @@ public class AdminController {
     private final UserService userService;
     private final ProductService productService;
     private final CommandeService commandeService;
+    private final PaiementService paiementService;
 
     private void checkAdmin(HttpSession session) {
         Object roleObj = session.getAttribute("USER_ROLE");
@@ -106,4 +109,14 @@ public class AdminController {
         CommandeDto created = commandeService.create(dto);
         return ResponseEntity.ok(created);
     }
+
+
+    // ----- Commande Management -----
+    @PostMapping("/create-payment")
+    public ResponseEntity<?> createPayment(@RequestBody PaiementDto dto, HttpSession session){
+        checkAdmin(session);
+        PaiementDto created = paiementService.create(dto);
+        return ResponseEntity.ok(created);
+    }
+
 }

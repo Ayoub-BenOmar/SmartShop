@@ -2,6 +2,7 @@ package org.example.smartshop.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.smartshop.enums.PaymentMethode;
 
 import java.time.LocalDateTime;
 
@@ -27,7 +28,8 @@ public class Paiement {
     private Double montant;
 
     @Column(nullable = false)
-    private String payementMethod;
+    @Enumerated(EnumType.STRING)
+    private PaymentMethode payementMethod;
 
     @Column(nullable = false)
     private LocalDateTime paymentDate;
