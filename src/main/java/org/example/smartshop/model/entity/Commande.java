@@ -40,7 +40,4 @@ public class Commande {
 
     private Double remainingAmount;
 
-    @Enumerated(EnumType.STRING)
-    private PaymentStatus paiementStatus;
-
 }

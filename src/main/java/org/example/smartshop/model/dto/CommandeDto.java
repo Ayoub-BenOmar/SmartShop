@@ -23,5 +23,4 @@ public class CommandeDto {
     private String promotionCode;
     private OrderStatus statut;
     private Double remainingAmount;
-    private PaymentStatus paiementStatus;
 }

@@ -41,7 +41,6 @@ public class CommandeService {
         commande.setDate(LocalDateTime.now());
         commande.setPromotionCode(dto.getPromotionCode());
         commande.setStatut(OrderStatus.PENDING);
-        commande.setPaiementStatus(PaymentStatus.PENDING);
 
         Commande savedCommande = commandeRepository.save(commande);
 

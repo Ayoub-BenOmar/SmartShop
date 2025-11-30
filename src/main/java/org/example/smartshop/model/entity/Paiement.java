@@ -3,6 +3,7 @@ package org.example.smartshop.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.smartshop.enums.PaymentMethode;
+import org.example.smartshop.enums.PaymentStatus;
 
 import java.time.LocalDateTime;
 
@@ -30,6 +31,10 @@ public class Paiement {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private PaymentMethode payementMethod;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus;
 
     @Column(nullable = false)
     private LocalDateTime paymentDate;
