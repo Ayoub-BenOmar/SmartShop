@@ -3,7 +3,6 @@ package org.example.smartshop.service;
 import lombok.*;
 import org.example.smartshop.enums.CustomerTier;
 import org.example.smartshop.enums.OrderStatus;
-import org.example.smartshop.enums.PaymentStatus;
 import org.example.smartshop.exceptions.BadRequestException;
 import org.example.smartshop.exceptions.NotFoundException;
 import org.example.smartshop.exceptions.UnprocessableEntityException;
@@ -25,7 +24,6 @@ public class CommandeService {
     private final CommandeRepository commandeRepository;
     private final CommandeMapper commandeMapper;
     private final UserRepository userRepository;
-    private final OrderItemRepository orderItemRepository;
     private final ProductRepository productRepository;
     private final UserService userService;
     private final OrderItemService orderItemService;
