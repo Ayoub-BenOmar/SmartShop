@@ -4,6 +4,9 @@ import lombok.*;
 import org.example.smartshop.enums.CustomerTier;
 import org.example.smartshop.enums.OrderStatus;
 import org.example.smartshop.enums.PaymentStatus;
+import org.example.smartshop.exceptions.BadRequestException;
+import org.example.smartshop.exceptions.NotFoundException;
+import org.example.smartshop.exceptions.UnprocessableEntityException;
 import org.example.smartshop.model.dto.CommandeDto;
 import org.example.smartshop.model.dto.CommandeItemDto;
 import org.example.smartshop.model.entity.*;
@@ -30,10 +33,10 @@ public class CommandeService {
     public CommandeDto create(CommandeDto dto) {
 
         User client = userRepository.findById(dto.getClientId())
-                .orElseThrow(() -> new RuntimeException("Client not found"));
+                .orElseThrow(() -> new NotFoundException("Client not found"));
 
         if (dto.getItems() == null || dto.getItems().isEmpty()) {
-            throw new RuntimeException("Commande must have at least one item");
+            throw new BadRequestException("Commande must have at least one item");
         }
 
         Commande commande = new Commande();
@@ -49,10 +52,10 @@ public class CommandeService {
 
         for (CommandeItemDto itemDto : dto.getItems()) {
             Product product = productRepository.findById(itemDto.getProductId())
-                    .orElseThrow(() -> new RuntimeException("Product not found: " + itemDto.getProductId()));
+                    .orElseThrow(() -> new NotFoundException("Product not found: " + itemDto.getProductId()));
 
             if (itemDto.getQuantity() > product.getAvailableQuantity()) {
-                throw new RuntimeException("Insufficient stock for product: " + product.getName());
+                throw new UnprocessableEntityException("Insufficient stock for product: " + product.getName());
             }
 
             OrderItem orderItem = orderItemService.create(savedCommande, product, itemDto.getQuantity());
@@ -107,7 +110,7 @@ public class CommandeService {
     }
 
     public CommandeDto getById(Integer id) {
-        Commande commande = commandeRepository.findById(id).orElseThrow(() -> new RuntimeException("Commande not found"));
+        Commande commande = commandeRepository.findById(id).orElseThrow(() -> new NotFoundException("Commande not found"));
         return commandeMapper.toDto(commande);
     }
 
@@ -120,13 +123,13 @@ public class CommandeService {
 
     public void delete(Integer id) {
         if (!commandeRepository.existsById(id)) {
-            throw new RuntimeException("Commande not found");
+            throw new NotFoundException("Commande not found");
         }
         commandeRepository.deleteById(id);
     }
 
     public CommandeDto updateStatus(Integer id, OrderStatus status) {
-        Commande existing = commandeRepository.findById(id).orElseThrow(() -> new RuntimeException("Commande not found"));
+        Commande existing = commandeRepository.findById(id).orElseThrow(() -> new NotFoundException("Commande not found"));
         existing.setStatut(status);
         if (status.equals(OrderStatus.CONFIRMED)) {
             updateClientLoyalty(existing.getClient(), existing.getTotal());

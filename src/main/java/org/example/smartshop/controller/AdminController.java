@@ -1,6 +1,5 @@
 package org.example.smartshop.controller;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.example.smartshop.enums.OrderStatus;
@@ -10,11 +9,11 @@ import org.example.smartshop.model.dto.CommandeDto;
 import org.example.smartshop.model.dto.PaiementDto;
 import org.example.smartshop.model.dto.ProductDto;
 import org.example.smartshop.model.dto.UserDto;
-import org.example.smartshop.model.entity.Product;
 import org.example.smartshop.service.CommandeService;
 import org.example.smartshop.service.PaiementService;
 import org.example.smartshop.service.ProductService;
 import org.example.smartshop.service.UserService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -70,6 +69,7 @@ public class AdminController {
     }
 
 
+
     // ----- Product management -----
     @PostMapping("/create-product")
     public ResponseEntity<?> createProduct(@RequestBody ProductDto dto, HttpSession session){
@@ -92,14 +92,28 @@ public class AdminController {
         return ResponseEntity.ok("Product deleted");
     }
 
+    @GetMapping("/products/{id}")
+    public ResponseEntity<ProductDto> getProductById(@PathVariable Integer id, HttpSession session){
+        checkAdmin(session);
+        return ResponseEntity.ok(productService.getById(id));
+    }
+
+    @GetMapping("/products")
+    public ResponseEntity<Page<ProductDto>> getAllProducts( @RequestParam(name = "page", defaultValue = "0") int page, @RequestParam(name = "size", defaultValue = "10") int size, HttpSession session) {
+        checkAdmin(session);
+        Page<ProductDto> result = productService.getAllProductsPaged(page, size);
+        return ResponseEntity.ok(result);
+    }
+
+
 
     // ----- Update Order Status -----
-    @PutMapping("/commandes/{id}/status")
+    @PutMapping("/commandes/{id}/status/{status}")
     public ResponseEntity<CommandeDto> updateCommandeStatus(@PathVariable Integer id, @PathVariable OrderStatus status, HttpSession session){
-        checkAdmin(session);
         checkAdmin(session);
         return ResponseEntity.ok(commandeService.updateStatus(id, status));
     }
+
 
 
     // ----- Commande Management -----
@@ -109,6 +123,7 @@ public class AdminController {
         CommandeDto created = commandeService.create(dto);
         return ResponseEntity.ok(created);
     }
+
 
 
     // ----- Commande Management -----

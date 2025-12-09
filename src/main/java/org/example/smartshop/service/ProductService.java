@@ -2,9 +2,15 @@ package org.example.smartshop.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.smartshop.model.dto.ProductDto;
+import org.example.smartshop.model.dto.UserDto;
 import org.example.smartshop.model.entity.Product;
+import org.example.smartshop.model.entity.User;
 import org.example.smartshop.model.mapper.ProductMapper;
 import org.example.smartshop.repository.ProductRepository;
+import org.example.smartshop.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -50,9 +56,16 @@ public class ProductService {
     }
 
     public List<ProductDto> getAll() {
-        return productRepository.findAll()
+        return productRepository.findByIsVisibleTrue()
                 .stream()
                 .map(productMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    public Page<ProductDto> getAllProductsPaged(int page, int size){
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Product> productPage = productRepository.findByIsVisibleTrue(pageable);
+
+        return productPage.map(productMapper::toDto);
     }
 }

@@ -3,6 +3,8 @@ package org.example.smartshop.service;
 import lombok.RequiredArgsConstructor;
 import org.example.smartshop.enums.CustomerTier;
 import org.example.smartshop.enums.UserRole;
+import org.example.smartshop.exceptions.BadRequestException;
+import org.example.smartshop.exceptions.NotFoundException;
 import org.example.smartshop.model.dto.CommandeDto;
 import org.example.smartshop.model.dto.UserDto;
 import org.example.smartshop.model.entity.Commande;
@@ -30,10 +32,10 @@ public class UserService {
 
     public UserDto create(UserDto dto) {
         if (dto.getPassword() == null || dto.getPassword().isBlank()) {
-            throw new RuntimeException("Password is required");
+            throw new BadRequestException("Password is required");
         }
         if (dto.getUsername() == null || dto.getUsername().isBlank()) {
-            throw new RuntimeException("Username is required");
+            throw new BadRequestException("Username is required");
         }
 
         dto.setUsername(dto.getUsername().trim());
@@ -48,7 +50,7 @@ public class UserService {
 
     public UserDto update(Integer id, UserDto dto) {
         User existing = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         existing.setUsername(dto.getUsername());
         existing.setName(dto.getName());
@@ -60,14 +62,14 @@ public class UserService {
 
     public void delete(Integer id) {
         if (!userRepository.existsById(id)) {
-            throw new RuntimeException("User not found");
+            throw new NotFoundException("User not found");
         }
         userRepository.deleteById(id);
     }
 
     public UserDto getById(Integer id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
         return userMapper.toDto(user);
     }
 
@@ -84,7 +86,7 @@ public class UserService {
 
     public double calculateTotalSpent(User client) {
         User user = userRepository.findById(client.getId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
         return user.getCommandes()
                 .stream()
                 .mapToDouble(commande -> commande.getTotal() != null ? commande.getTotal() : 0.0)
@@ -93,11 +95,9 @@ public class UserService {
 
     public int calculateTotalOrders(User client) {
         User user = userRepository.findById(client.getId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
         return user.getCommandes().size();
     }
-
-    // --- New business methods for client functionality ---
 
     public UserDto getProfileForClient(Integer clientId) {
         return getById(clientId);
@@ -112,7 +112,7 @@ public class UserService {
 
     public Map<String, Object> getStatsForClient(Integer clientId) {
         User user = userRepository.findById(clientId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
         int totalOrders = calculateTotalOrders(user);
         double totalSpent = calculateTotalSpent(user);
         Map<String, Object> stats = new HashMap<>();

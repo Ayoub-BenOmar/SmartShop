@@ -4,6 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.example.smartshop.enums.OrderStatus;
 import org.example.smartshop.enums.PaymentMethode;
 import org.example.smartshop.enums.PaymentStatus;
+import org.example.smartshop.exceptions.BadRequestException;
+import org.example.smartshop.exceptions.NotFoundException;
+import org.example.smartshop.exceptions.UnprocessableEntityException;
 import org.example.smartshop.model.dto.PaiementDto;
 import org.example.smartshop.model.entity.Commande;
 import org.example.smartshop.model.entity.Paiement;
@@ -23,14 +26,14 @@ public class PaiementService {
     public PaiementDto create(PaiementDto dto) {
 
         Commande commande = commandeRepository.findById(dto.getCommandeId())
-                .orElseThrow(() -> new RuntimeException("Commande not found"));
+                .orElseThrow(() -> new NotFoundException("Commande not found"));
 
         if (dto.getMontant() <= 0) {
-            throw new RuntimeException("Payment amount must be positive");
+            throw new BadRequestException("Payment amount must be positive");
         }
 
         if (dto.getMontant() > commande.getRemainingAmount()) {
-            throw new RuntimeException("Payment exceeds remaining amount!");
+            throw new UnprocessableEntityException("Payment exceeds remaining amount!");
         }
 
         int existingPayments = paiementRepository.countByCommandeId(dto.getCommandeId());

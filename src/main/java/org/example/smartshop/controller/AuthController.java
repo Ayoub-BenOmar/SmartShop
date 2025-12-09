@@ -3,11 +3,11 @@ package org.example.smartshop.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.example.smartshop.exceptions.UnauthorizedException;
 import org.example.smartshop.model.dto.LoginRequestDto;
 import org.example.smartshop.model.dto.UserDto;
 import org.example.smartshop.model.mapper.UserMapper;
 import org.example.smartshop.service.AuthService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,7 +34,7 @@ public class AuthController {
             UserDto dto = userMapper.toDto(user);
             return ResponseEntity.ok(dto);
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+            throw new UnauthorizedException("Invalid credentials");
         }
     }
 
